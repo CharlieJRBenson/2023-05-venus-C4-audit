@@ -180,6 +180,11 @@ contract Shortfall is Ownable2StepUpgradeable, AccessControlledV8, ReentrancyGua
                 if (auction.highestBidder != address(0)) {
                     uint256 previousBidAmount = ((auction.marketDebt[auction.markets[i]] * auction.highestBidBps) /
                         MAX_BPS);
+                    //@audit - dos refuse higher bidder?
+                    //safeTransfer assumes success on no return val. But can still revert.
+                    //audit checklist:
+                    //check all erc20's possible in this function
+                    //find valid erc20 (erc777) that can revert here - prove i can revert it.
                     erc20.safeTransfer(auction.highestBidder, previousBidAmount);
                 }
 
@@ -187,7 +192,7 @@ contract Shortfall is Ownable2StepUpgradeable, AccessControlledV8, ReentrancyGua
                 erc20.safeTransferFrom(msg.sender, address(this), currentBidAmount);
             } else {
                 if (auction.highestBidder != address(0)) {
-                    erc20.safeTransfer(auction.highestBidder, auction.marketDebt[auction.markets[i]]);
+                    erc20.safeTransfer(auction.highestBidder, auction.marketDebt[auction.markets[i]]); //@audit - was this 0 for the first bidder
                 }
 
                 erc20.safeTransferFrom(msg.sender, address(this), auction.marketDebt[auction.markets[i]]);
