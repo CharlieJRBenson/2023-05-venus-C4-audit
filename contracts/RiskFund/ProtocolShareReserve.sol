@@ -63,11 +63,8 @@ contract ProtocolShareReserve is Ownable2StepUpgradeable, ExponentialNoError, Re
      * @param amount Amount to release
      * @return Number of total released tokens
      */
-    function releaseFunds(
-        address comptroller,
-        address asset,
-        uint256 amount
-    ) external returns (uint256) {
+    function releaseFunds(address comptroller, address asset, uint256 amount) external returns (uint256) {
+        //@audit - high impact function - protocol funds sent
         require(asset != address(0), "ProtocolShareReserve: Asset address invalid");
         require(amount <= poolsAssetsReserves[comptroller][asset], "ProtocolShareReserve: Insufficient pool balance");
 
@@ -94,10 +91,10 @@ contract ProtocolShareReserve is Ownable2StepUpgradeable, ExponentialNoError, Re
      * @param comptroller  Comptroller address(pool)
      * @param asset Asset address.
      */
-    function updateAssetsState(address comptroller, address asset)
-        public
-        override(IProtocolShareReserve, ReserveHelpers)
-    {
+    function updateAssetsState(
+        address comptroller,
+        address asset
+    ) public override(IProtocolShareReserve, ReserveHelpers) {
         super.updateAssetsState(comptroller, asset);
     }
 }
